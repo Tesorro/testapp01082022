@@ -116,14 +116,41 @@ export const getMe = async (req, res) => {
 export const changeInfo = async (req, res) => {
   try {
     const user = await UserModel.findById(req.userId);
+    const { name, password, photoUrl } = req.body;
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
     if (!user) {
       return res.status(404).json({
         message: 'Пользователь не найден',
       });
     }
-    res.send({
-      success: true,
-    })
+
+    const result = await UserModel.updateOne(
+      { _id: req.userId },
+      { $set: { name, passwordHash: hash, photoUrl } },
+    );
+
+    res.json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Нет доступа',
+    });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  console.log(req.userId);
+  try {
+    const users = await UserModel.find({ _id: { $ne: req.userId } });
+    const usersList = users.map((user) => {
+      const { name, photoUrl, birthday } = user;
+      console.log({ name, photoUrl, birthday });
+      return { name, photoUrl, birthday };
+    });
+    res.status(200).json({ usersList });
   } catch (error) {
     console.log(error);
     res.status(500).json({

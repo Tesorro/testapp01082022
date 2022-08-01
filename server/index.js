@@ -20,8 +20,9 @@ app.use(express.json());
 
 app.post('/auth/register', registerValidation, UserController.register);
 app.post('/auth/login', loginValidation, UserController.login);
-app.post('/account/change', checkAuth, UserController.changeInfo);
+app.patch('/account/', checkAuth, UserController.changeInfo);
 app.get('/auth/me', checkAuth, UserController.getMe);
+app.get('/people', checkAuth, UserController.getAllUsers)
 
 app.listen(process.env.PORT, (err) => {
   if (err) {
