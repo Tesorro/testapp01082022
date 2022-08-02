@@ -1,14 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
-
 import mongoose from 'mongoose';
+import multer from 'multer';
 
 import checkAuth from './utils/checkAuth.js';
 
 import * as UserController from './controllers/UserController.js';
 
-import { registerValidation, loginValidation } from './validations/auth.js';
+import { registerValidation, loginValidation, updateValidation } from './validations/auth.js';
 mongoose
   .connect(process.env.DB_CONNECT)
   .then(() => console.log('DB is connected'))
@@ -16,13 +16,30 @@ mongoose
 
 const app = express();
 
-app.use(express.json());
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
-app.post('/auth/register', registerValidation, UserController.register);
+const upload = multer({ storage });
+
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+
 app.post('/auth/login', loginValidation, UserController.login);
-app.patch('/account/', checkAuth, UserController.changeInfo);
+app.post('/auth/register', registerValidation, UserController.register);
+app.patch('/account', checkAuth, updateValidation, UserController.changeInfo);
 app.get('/auth/me', checkAuth, UserController.getMe);
-app.get('/people', checkAuth, UserController.getAllUsers)
+app.get('/people', checkAuth, UserController.getAllUsers);
+app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+  res.json({
+    url: `/uploads/${req.file.originalname}`,
+  })
+});
 
 app.listen(process.env.PORT, (err) => {
   if (err) {
