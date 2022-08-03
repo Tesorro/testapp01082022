@@ -3,6 +3,7 @@ dotenv.config();
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
+import cors from 'cors';
 
 import checkAuth from './utils/checkAuth.js';
 
@@ -27,18 +28,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 app.post('/auth/login', loginValidation, UserController.login);
 app.post('/auth/register', registerValidation, UserController.register);
-app.patch('/account', checkAuth, updateValidation, UserController.changeInfo);
+app.patch('/update/:id', checkAuth, updateValidation, UserController.updateInfo);
 app.get('/auth/me', checkAuth, UserController.getMe);
 app.get('/people', checkAuth, UserController.getAllUsers);
-app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+app.post('/upload', upload.single('image'), (req, res) => {
   res.json({
     url: `/uploads/${req.file.originalname}`,
-  })
+  });
 });
 
 app.listen(process.env.PORT, (err) => {
