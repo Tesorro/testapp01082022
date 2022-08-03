@@ -1,0 +1,35 @@
+.form {
+  width: auto;
+  margin: 0 auto;
+  input {
+    display: block;
+    margin: 10px 0;
+    font-size: 20px;
+    padding: 10px;
+  }
+  .submitBtn {
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 10px;
+  }
+}
+
+.gender {
+  width: 150px;
+  div {
+    border-color: black;
+  }
+}
+
+.datePicker {
+  display: flex;
+  flex-direction: row;
+  margin: 10px 0;
+  input {
+    display: inline-flex;
+  }
+
+  div {
+    align-items: center;
+  }
+}

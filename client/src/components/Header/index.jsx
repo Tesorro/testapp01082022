@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Button from '@mui/material/Button';
@@ -6,12 +6,29 @@ import Container from '@mui/material/Container';
 
 import styles from './Header.module.scss';
 import { Tooltip } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAuthMe, logout, selectIsAuth } from '../../redux/slices/mainSlice';
 
 const Header = () => {
-  // const isAuth = true;
-  const isAuth = false;
+  const isAuth = useSelector(selectIsAuth);
 
-  const onClickLogout = () => {};
+  const username = useSelector(state => state.mainReducer.username);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await dispatch(fetchAuthMe());
+    }
+    fetchData();
+  }, []);
+
+  const onClickLogout = () => {
+    if (window.confirm('Вы уверены, что хотите выйти?')) {
+      dispatch(logout());
+      window.localStorage.removeItem('token');
+    }
+  };
 
   return (
     <div className={styles.root}>
@@ -20,18 +37,21 @@ const Header = () => {
           <div className={styles.buttons}>
             {isAuth ? (
               <>
-                <Link to="/">
-                  <Button variant="contained">Главная</Button>
-                </Link>
-                <Link to="/account">
-                  <Button variant="contained">Профиль</Button>
-                </Link>
-                <Link to="/people">
-                  <Button variant="contained">Аккаунты</Button>
-                </Link>
-                <Button onClick={onClickLogout} variant="contained" color="error">
-                  Выйти
-                </Button>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                  {username && <h2 style={{ display: 'inline' }}>Привет, {username}</h2>}
+                  <Link to="/">
+                    <Button variant="contained">Главная</Button>
+                  </Link>
+                  <Link to="/account">
+                    <Button variant="contained">Профиль</Button>
+                  </Link>
+                  <Link to="/people">
+                    <Button variant="contained">Аккаунты</Button>
+                  </Link>
+                  <Button onClick={onClickLogout} variant="contained" color="error">
+                    Выйти
+                  </Button>
+                </div>
               </>
             ) : (
               <>
