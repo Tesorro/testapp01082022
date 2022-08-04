@@ -18,19 +18,19 @@
 
 Стилизация проекта
 
-### React Hook Form
+### `React Hook Form`
 
 Работа с формами
 
-### React Router Dom
+### `React Router Dom`
 
 Маршрутизация по интерфейсу приложения
 
-### Axios
+### `Axios`
 
 Запросы к базе данных
 
-### Прочее
+### `Прочее`
 
 React Datepicker - компонент календарь для формы регистрации
 React Select - компонент Select для формы регистрации
