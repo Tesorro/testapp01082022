@@ -1,5 +1,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { fetchAuth, showRegForm } from '../../redux/slices/mainSlice';
 
 import styles from '../RegForm/RegForm.module.scss';
 
@@ -11,8 +14,25 @@ const AuthForm = () => {
     reset,
   } = useForm({ mode: 'onChange' });
 
-  const onSubmit = (data) => {
-    alert(`name is ${data.email}, ${data.password}`);
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+
+  const onSubmit = async (values) => {
+    try {
+      const userInfo = await dispatch(fetchAuth(values));
+      if (!userInfo.payload) {
+        return alert('Не удалось авторизоваться');
+      }
+
+      if ('token' in userInfo.payload) {
+        window.localStorage.setItem('token', userInfo.payload.token);
+      }
+      navigate('/account');
+      
+    } catch (error) {
+      console.log(error);
+    }
     reset();
   };
 
@@ -31,6 +51,7 @@ const AuthForm = () => {
       />
       {errors?.password && <div style={{ color: 'red' }}>{errors.password.message}</div>}
       <button className={styles.submitBtn}>Войти</button>
+      <a onClick={() => dispatch(showRegForm())} className={styles.haveAccBtn}>Регистрация</a>
     </form>
   );
 };

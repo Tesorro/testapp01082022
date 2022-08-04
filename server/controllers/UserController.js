@@ -59,7 +59,6 @@ export const login = async (req, res) => {
     }
     const user = await UserModel.findOne({ email: req.body.email });
 
-    console.log('req.body', req.body);
 
     if (!user) {
       return res.status(404).json({
@@ -144,24 +143,6 @@ export const updateInfo = async (req, res) => {
 
     res.json(user)
     
-    // const user = await UserModel.findById(req.userId);
-    // const { name, password, photoUrl } = req.body;
-
-    // const salt = await bcrypt.genSalt(10);
-    // const hash = await bcrypt.hash(password, salt);
-
-    // if (!user) {
-    //   return res.status(404).json({
-    //     message: 'Пользователь не найден',
-    //   });
-    // }
-
-    // const result = await UserModel.updateOne(
-    //   { _id: req.userId },
-    //   { $set: { name, passwordHash: hash, photoUrl } },
-    // );
-
-    // res.json(user);
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -174,8 +155,8 @@ export const getAllUsers = async (req, res) => {
   try {
     const users = await UserModel.find({ _id: { $ne: req.userId } });
     const usersList = users.map((user) => {
-      const { name, photoUrl, birthday } = user;
-      return { name, photoUrl, birthday };
+      const { _id, name, photoUrl, birthday } = user;
+      return { _id, name, photoUrl, birthday };
     });
     res.status(200).json({ usersList });
   } catch (error) {

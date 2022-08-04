@@ -8,21 +8,9 @@ import { selectIsAuth } from '../../redux/slices/mainSlice';
 
 const Home = () => {
 
-  const isAuth = useSelector(selectIsAuth);
+  const showLogin = useSelector(state => state.mainReducer.isLogin);
 
-  const [state, setState] = useState(false);
-
-  function getAge(dateString) {
-    let today = new Date();
-    let age = today.getFullYear() - dateString.getFullYear();
-    let m = today.getMonth() - dateString.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dateString.getDate())) {
-      age--;
-    }
-    return age;
-  }
-
-  return <>{isAuth ? <AuthForm /> : <RegForm />}</>;
+  return <>{showLogin ? <AuthForm /> : <RegForm />}</>;
 };
 
 export default Home;

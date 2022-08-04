@@ -10,15 +10,13 @@ import styles from '../../components/RegForm/RegForm.module.scss';
 const Profile = () => {
   const isAuth = useSelector(selectIsAuth);
 
-  const username = useSelector(state => state.mainReducer.username);
+  const username = useSelector((state) => state?.mainReducer?.data?.name);
 
   const [info, setInfo] = useState();
 
   const inputFileRef = useRef(null);
 
   const dispatch = useDispatch();
-
-  console.log('info', info)
 
   const {
     register,
@@ -33,12 +31,10 @@ const Profile = () => {
       const file = inputFileRef.current.files[0];
       formData.append('image', file);
       const { data } = await axios.post(`/upload`, formData);
-      const result = {...values, photoUrl: data.url, id: info?.payload._id};
-      // console.log('result', result);
+      const result = { ...values, photoUrl: data.url, id: info?.payload._id };
       const responce = await dispatch(fetchUpdateInfo(result));
-      console.log('responce', responce);
     } catch (error) {
-      console.log('Не удалось внести изменения', error)
+      console.log('Не удалось внести изменения', error);
     }
   };
 
@@ -51,29 +47,38 @@ const Profile = () => {
   }, []);
 
   if (!isAuth) {
-    return <Navigate to='/' />
+    return <Navigate to="/" />;
   }
 
-  return <>{isAuth && <div><form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-  <input
-    {...register('name', { required: 'Введите имя' })}
-    placeholder={username}
-    type="name"
-  />
-  {errors?.email && <div style={{ color: 'red' }}>{errors.email.message}</div>}
-  <input
-    {...register('password', { required: 'Введите пароль', minLength: 8 })}
-    placeholder="Введите пароль"
-    type="password"
-  />
-  {errors?.password && <div style={{ color: 'red' }}>{errors.password.message}</div>}
-  <input ref={inputFileRef} type="file" />
-  <button className={styles.submitBtn}>Изменить</button>
-</form></div>}</>;
-  // return <>{isAuth ? <div>index {console.log('info', info)}</div> : <h1>Нет доступа</h1>}</>;
+  return (
+    <>
+      {isAuth && (
+        <div>
+          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+              <div>
+                <input
+                  {...register('name', { required: 'Введите имя' })}
+                  placeholder={username}
+                  type="name"
+                />
+                {errors?.email && <div style={{ color: 'red' }}>{errors.email.message}</div>}
+                <input
+                  {...register('password', { required: 'Введите пароль', minLength: 8 })}
+                  placeholder="Введите пароль"
+                  type="password"
+                />
+                {errors?.password && <div style={{ color: 'red' }}>{errors.password.message}</div>}
+              </div>
+              <img width={300} src={info?.payload?.photoUrl} alt={info?.payload?.name} />
+            </div>
+            <input ref={inputFileRef} type="file" />
+            <button className={styles.submitBtn}>Изменить</button>
+          </form>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default Profile;
-
-
-// , 
