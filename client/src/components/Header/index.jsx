@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -12,7 +12,9 @@ import { fetchAuthMe, logout, selectIsAuth } from '../../redux/slices/mainSlice'
 const Header = () => {
   const isAuth = useSelector(selectIsAuth);
 
-  const username = useSelector(state => state.mainReducer.username);
+  const username = useSelector(state => state?.mainReducer?.data?.name);
+
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -27,6 +29,7 @@ const Header = () => {
     if (window.confirm('Вы уверены, что хотите выйти?')) {
       dispatch(logout());
       window.localStorage.removeItem('token');
+      navigate('/');
     }
   };
 
@@ -39,9 +42,7 @@ const Header = () => {
               <>
                 <div style={{display: 'flex', alignItems: 'center'}}>
                   {username && <h2 style={{ display: 'inline' }}>Привет, {username}</h2>}
-                  <Link to="/">
-                    <Button variant="contained">Главная</Button>
-                  </Link>
+            
                   <Link to="/account">
                     <Button variant="contained">Профиль</Button>
                   </Link>

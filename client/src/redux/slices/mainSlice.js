@@ -24,15 +24,14 @@ export const fetchAuthMe = createAsyncThunk('auth/fetchAuthMe', async () => {
 })
 
 export const fetchUpdateInfo = createAsyncThunk('user/updateInfo', async (user, thunkAPI) => {
-  console.log('update info userData', user);
   const { data } = await axios.patch(`/update/${user._id}`, user);
-  console.log('update info data', data);
   thunkAPI.dispatch(setName(data.name))
   return data;
 })
 
 export const initialState = {
-  username: '',
+  users: [],
+  isLogin: false,
   data: null,
   status: 'loading',
 }
@@ -47,7 +46,13 @@ const mainSlice = createSlice({
     },
     setName: (state, action) => {
       state.username = action.payload;
-    }
+    },
+    showLoginForm: (state) => {
+      state.isLogin = true;
+    },
+    showRegForm: (state) => {
+      state.isLogin = false;
+    },
   },
   extraReducers: {
     [fetchAuth.pending]: (state) => {
@@ -64,7 +69,6 @@ const mainSlice = createSlice({
     },
     [fetchAuthMe.pending]: (state) => {
       state.status = 'loading';
-      // state.data = null;
     },
     [fetchAuthMe.fulfilled]: (state, action) => {
       state.status = 'loaded';
@@ -72,7 +76,6 @@ const mainSlice = createSlice({
     },
     [fetchAuthMe.rejected]: (state) => {
       state.status = 'error';
-      // state.data = null;
     },
     [fetchRegister.pending]: (state) => {
       state.status = 'loading';
@@ -88,15 +91,15 @@ const mainSlice = createSlice({
     },
     [fetchGetPeople.pending]: (state) => {
       state.status = 'loading';
-      state.data = null;
+      state.users = null;
     },
     [fetchGetPeople.fulfilled]: (state, action) => {
       state.status = 'loaded';
-      state.data = action.payload;
+      state.users = action.payload;
     },
     [fetchGetPeople.rejected]: (state) => {
       state.status = 'error';
-      state.data = null;
+      state.users = null;
     },
   }
 })
@@ -106,4 +109,4 @@ export const selectIsAuth = state => Boolean(state.mainReducer.data);
 
 export const mainReducer = mainSlice.reducer;
 
-export const { logout, setName } = mainSlice.actions;
+export const { logout, setName, showLoginForm, showRegForm } = mainSlice.actions;

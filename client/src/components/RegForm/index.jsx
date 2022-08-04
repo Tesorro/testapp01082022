@@ -8,7 +8,7 @@ import axios from '../../axios';
 
 import styles from './RegForm.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRegister, selectIsAuth } from '../../redux/slices/mainSlice';
+import { fetchRegister, selectIsAuth, showLoginForm } from '../../redux/slices/mainSlice';
 
 const options = [
   { value: 'М', label: 'М' },
@@ -16,7 +16,6 @@ const options = [
 ];
 
 const RegForm = () => {
-
   const isAuth = useSelector(selectIsAuth);
 
   const [photoUrl, setPhotoUrl] = useState();
@@ -34,35 +33,44 @@ const RegForm = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    resetField,
   } = useForm({ mode: 'onChange' });
 
   const onSubmit = async (values) => {
     try {
+      if (values.password !== values.passwordConfirm) {
+        resetField('password');
+        resetField('passwordConfirm');
+        return alert('Введенные пароли не совпадают')
+      }
       const formData = new FormData();
       const file = inputFileRef.current.files[0];
       formData.append('image', file);
       const { data } = await axios.post(`/upload`, formData);
-      const fields = ({ passwordConfirm, ...values }) => values
-      const result = { ...fields(values), photoUrl: data.url, gender: gender.value, birthday: date.toString() };
+      const fields = ({ passwordConfirm, ...values }) => values;
+      const result = {
+        ...fields(values),
+        photoUrl: `http://localhost:4444${data.url}`,
+        gender: gender.value,
+        birthday: date,
+      };
       const userInfo = await dispatch(fetchRegister(result));
       if (!userInfo.payload) {
         return alert('Не удалось зарегистрироваться');
       }
-  
+
       if ('token' in userInfo.payload) {
         window.localStorage.setItem('token', userInfo.payload.token);
       }
-
     } catch (error) {
       console.log(error);
     }
-
 
     reset();
   };
 
   if (isAuth) {
-    return <Navigate to='/'/>
+    return <Navigate to="/account" />;
   }
 
   return (
@@ -97,20 +105,20 @@ const RegForm = () => {
         <DatePicker
           onChange={(date) => setDate(date)}
           value={date}
-          dateFormat="MMMM d, yyyy h:mm aa"
-          selectRange
           returnValue="start"
+          maxDate={new Date()}
         />
       </div>
       <Select
+        placeholder="Пол"
         className={styles.gender}
         options={options}
         value={gender}
         onChange={(value) => setGender(value)}
       />
       <input ref={inputFileRef} type="file" />
-      {/* {console.log('inputRef', inputFileRef.current.files)} */}
       <button className={styles.submitBtn}>Зарегистрироваться</button>
+      <a className={styles.haveAccBtn} onClick={() => dispatch(showLoginForm())}>Есть аккаунт?</a>
     </form>
   );
 };
